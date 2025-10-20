@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query, Path, status
 from pydantic import BaseModel, Field
 from typing import Annotated
+import httpx
 
 
 # wire out
@@ -26,8 +27,21 @@ api = FastAPI()
 
 @api.get("/pokemons", response_model=list[PokemonOut])
 def get_pokemons(skip: int = 0, limit: int = 10):
-    data = list(db.values())
-    return data[skip : skip + limit]
+    try:
+        response = httpx.get(
+            f"https://pokeapi.co/api/v2/pokemon?limit={limit}&offset={skip}"
+        )
+
+        response.raise_for_status()
+        data = response.json()
+        pokemons: list[PokemonOut] = [
+            PokemonOut(number=number, name=item["name"])
+            for number, item in enumerate(data["results"], start=1)
+        ]
+
+        return pokemons
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=ex)
 
 
 @api.get("/pokemons/{number}", response_model=PokemonOut)

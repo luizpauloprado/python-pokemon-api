@@ -1,10 +1,16 @@
-from fastapi.testclient import TestClient
 from main import api
+from fastapi.testclient import TestClient
+import pytest # or = from pytest_httpx import HTTPXMock
 
 client = TestClient(api)
 
 
-def test_get_pokemons():
+def test_get_pokemons(httpx_mock):
+    httpx_mock.add_response(
+        url="https://pokeapi.co/api/v2/pokemon?limit=10&offset=0",
+        status_code=200,
+        json={"results": [{"name": "Pikachu"}, {"name": "Ditto"}]},
+    )
     result = client.get("/pokemons")
     json_data = result.json()
 
@@ -56,6 +62,7 @@ def test_post_pokemon_error_400():
 
     assert result.status_code == 400
     assert "detail" in json_data
+
 
 def test_post_pokemon_error_incorret_input():
     json_post = {"number": 0, "name": "Ditto"}
