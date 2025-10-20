@@ -52,7 +52,7 @@ pytest-httpx
 ```
 pytest test_app.py
 ```
-https://pokeapi.co/
+
 ## Utils
 
 [PokeAPI](https://pokeapi.co/)
