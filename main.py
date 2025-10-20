@@ -1,18 +1,26 @@
-from fastapi import FastAPI, HTTPException, Query, Path
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Query, Path, status
+from pydantic import BaseModel, Field
 from typing import Annotated
 
 
+# wire out
 class PokemonOut(BaseModel):
     number: int
     name: str
 
 
+class PokemonIn(BaseModel):
+    number: int = Field(gt=0)
+    name: str = Field(min_length=3)
+
+
+# db
 db: dict[int, PokemonOut] = {
     1: PokemonOut(number=1, name="Pikachu"),
     2: PokemonOut(number=2, name="Ditto"),
 }
 
+# api
 api = FastAPI()
 
 
@@ -28,3 +36,15 @@ def get_pokemon(number: Annotated[int, Path(gt=0)]):
         raise HTTPException(status_code=404, detail="Not found!")
 
     return db.get(number)
+
+
+@api.post("/pokemons", response_model=PokemonOut, status_code=status.HTTP_201_CREATED)
+def post_pokemon(pokemon_in: PokemonIn):
+    if pokemon_in.number in db.keys():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Pokemon number already in use!",
+        )
+
+    db[pokemon_in.number] = PokemonOut(number=pokemon_in.number, name=pokemon_in.name)
+    return db[pokemon_in.number]

@@ -23,7 +23,7 @@ def test_get_pokemon_by_number():
     assert json_data["name"] == "Pikachu"
 
 
-def test_get_pokemon_by_number_error_not_found():
+def test_get_pokemon_by_number_error_404():
     result = client.get("/pokemons/99999")
     json_data = result.json()
 
@@ -33,6 +33,33 @@ def test_get_pokemon_by_number_error_not_found():
 
 def test_get_pokemon_by_number_error_incorrect_param():
     result = client.get("/pokemons/0")
+    json_data = result.json()
+
+    assert result.status_code == 422
+    assert "detail" in json_data
+
+
+def test_post_pokemon():
+    json_post = {"number": 3, "name": "Mew"}
+    result = client.post("/pokemons", json=json_post)
+    json_data = result.json()
+
+    assert result.status_code == 201
+    assert json_data["number"] == 3
+    assert json_data["name"] == "Mew"
+
+
+def test_post_pokemon_error_400():
+    json_post = {"number": 2, "name": "Ditto"}
+    result = client.post("/pokemons", json=json_post)
+    json_data = result.json()
+
+    assert result.status_code == 400
+    assert "detail" in json_data
+
+def test_post_pokemon_error_incorret_input():
+    json_post = {"number": 0, "name": "Ditto"}
+    result = client.post("/pokemons", json=json_post)
     json_data = result.json()
 
     assert result.status_code == 422
