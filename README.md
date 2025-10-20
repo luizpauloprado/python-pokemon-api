@@ -44,6 +44,7 @@ pip freeze > requirements.txt
 ```
 "fastapi[standard]"
 pytest
+pytest-httpx
 ```
 
 ## Test
