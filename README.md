@@ -5,7 +5,7 @@ Python FastAPI project to call PokéAPI
 ## Run
 
 ```
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 fastapi dev main.py
 ```
 
@@ -14,7 +14,7 @@ fastapi dev main.py
 Install deps:
 
 ```
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Create .venv:
